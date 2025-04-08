@@ -5,6 +5,8 @@ import torch
 import openl3
 from transformers import AutoTokenizer, AutoModel
 
+folder_path = "EATD-Corpus"
+
 def read_label(folder_path):
     """读取被试标签：优先使用label.txt，其次new_label.txt"""
     label_path = os.path.join(folder_path, "label.txt")
