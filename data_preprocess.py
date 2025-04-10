@@ -5,8 +5,6 @@ import torch
 import openl3
 from transformers import AutoTokenizer, AutoModel
 
-folder_path = "EATD-Corpus"
-
 def read_label(folder_path):
     """读取被试标签：优先使用label.txt，其次new_label.txt"""
     label_path = os.path.join(folder_path, "label.txt")
@@ -26,7 +24,7 @@ def process_participant(participant_dir):
         audio_path = os.path.join(participant_dir, f"{emotion}.wav")
         text_path = os.path.join(participant_dir, f"{emotion}.txt")
         
-        if not (os.path.exists(audio_path) or not (os.path.exists(text_path))):
+        if not (os.path.exists(audio_path) and os.path.exists(text_path)):
             continue
         
         # 提取音频特征（OpenL3）
@@ -57,12 +55,12 @@ def main():
     base_dir = "EATD-Corpus"
     all_features = []
     
-    # 遍历所有被试文件夹（t_1到t_13）
+    # 遍历所有被试文件夹（只查找t_开头的文件夹）
     for folder in os.listdir(base_dir):
-        folder_path = os.path.join(base_dir, folder)
-        if not os.path.isdir(folder_path):
-            continue
-        all_features.extend(process_participant(folder_path))
+        if folder.startswith("t_") and os.path.isdir(os.path.join(base_dir, folder)):
+            folder_path = os.path.join(base_dir, folder)
+            participant_features = process_participant(folder_path)
+            all_features.extend(participant_features)
     
     # 保存为CSV
     pd.DataFrame(all_features).to_csv("processed_features.csv", index=False)
